@@ -1,10 +1,10 @@
 const inputData = [
   "a",
   "b",
-  "c",
-  "d",
-  "e",
-  "f",
+  "k",
+  "p",
+  "b",
+  "b",
   "g",
   "h",
   "i",
@@ -18,41 +18,79 @@ const inputData = [
 ];
 
 const unfinishedGameBoard = inputData.map((letter, position) => {
-  const row = Math.floor(position / 4);
-  const column = position - row * 4;
   return {
     letter,
-    interactable: false,
+    interactable: true,
     previousTile: null,
-    row,
-    column,
     position,
   };
 });
 
 const gameBoard = unfinishedGameBoard.map((tile) => {
-  const isLeft = Boolean(tile.column) ? 1 : 0;
-  const isRight = tile.column === 3 ? 0 : 1;
-  // console.log(isLeft, isRight);
-  console.log(
-    // Top Left
-    unfinishedGameBoard[tile.position - 5] * isLeft,
-    // Top
-    unfinishedGameBoard[tile.position - 4],
-    // Top Right
-    unfinishedGameBoard[tile.position - 3] * isRight,
-    // Left
-    unfinishedGameBoard[tile.position - 1] * isLeft,
-    // Right
-    unfinishedGameBoard[tile.position + 1] * isRight,
-    // Bottom Left
-    unfinishedGameBoard[tile.position + 3] * isLeft,
-    // Bottom
-    unfinishedGameBoard[tile.position + 4],
-    // Bottom Right
-    unfinishedGameBoard[tile.position + 5] * isRight
-  );
+  const row = Math.floor(tile.position / 4);
+  const column = tile.position - row * 4;
+
+  const isLeft = Boolean(column) ? 1 : "yo";
+  const isRight = column === 3 ? "yo" : 1;
+
+  const nearbyLettersIndex = [
+    tile.position - 5 * isLeft,
+    tile.position - 4,
+    tile.position - 3 * isRight,
+    tile.position - 1 * isLeft,
+    tile.position + 1 * isRight,
+    tile.position + 3 * isLeft,
+    tile.position + 4,
+    tile.position + 5 * isRight,
+  ];
+
   return {
     ...tile,
+    nearbyLettersIndex: nearbyLettersIndex.filter((letter) => {
+      return !isNaN(letter);
+    }),
   };
 });
+
+const getNearbyTiles = (tile) => {
+  return tile.nearbyLettersIndex
+    .map((index) => {
+      return gameBoard[index];
+    })
+    .filter((tile) => {
+      return tile;
+    });
+};
+
+const doesThisWordWork = (word, startingTile) => {
+  const startingAcc = startingTile.letter === word[0] ? [startingTile] : [];
+
+  const letterTree = Array.from(word).reduce(
+    (acc, _letter, index, word) => {
+      if (acc[index]) {
+        acc[index].map((parentTile) => {
+          acc[index + 1] = getNearbyTiles(parentTile).reduce(
+            (validNearbyTiles, tile, direction) => {
+              if (tile.letter === word[index + 1] && tile.interactable) {
+                validNearbyTiles.push(tile);
+                tile.interactable = false;
+              }
+              return validNearbyTiles;
+            },
+            []
+          );
+        });
+        return acc;
+      }
+      return acc;
+    },
+    [startingAcc]
+  );
+  letterTree.pop();
+  if (letterTree.length === word.length) {
+    console.log("worked");
+    console.log(letterTree[word.length - 1][0]);
+  }
+};
+
+doesThisWordWork("abkp", gameBoard[0]);
