@@ -1,5 +1,3 @@
-const display = document.querySelector("#display");
-
 const inputData = [
   "a",
   "b",
@@ -100,7 +98,7 @@ const doesThisWordWork = (word, startingTile) => {
     const finalTile = letterTree[word.length - 1][0];
     finalTile.direction = "🛑";
 
-    const answer = [
+    const emptyAnswer = [
       "⬛",
       "⬛",
       "⬛",
@@ -120,21 +118,25 @@ const doesThisWordWork = (word, startingTile) => {
     ];
 
     [...finalTile.parents, finalTile].map((tile) => {
-      answer[tile.position] = tile.direction;
+      emptyAnswer[tile.position] = tile.direction;
     });
 
-    const finalAnswer = answer.reduce((finalDisplay, displayLetter, index) => {
-      finalDisplay = finalDisplay + displayLetter;
-      if (index % 4 == 3) {
-        finalDisplay = finalDisplay + "<br>";
-      }
-      return finalDisplay;
-    }, "");
-
+    const finalAnswer = emptyAnswer.reduce(
+      (stringAnswer, displayLetter, index) => {
+        stringAnswer = stringAnswer + displayLetter;
+        if (index % 4 == 3) {
+          stringAnswer = stringAnswer + "\n";
+        }
+        return stringAnswer;
+      },
+      ""
+    );
+    gameBoard.map((tile) => {
+      (tile.parents = []), (tile.direction = "");
+    });
     return finalAnswer;
   } else {
     return false;
   }
 };
-display.innerHTML = doesThisWordWork("knife", gameBoard[10]);
-console.log(gameBoard);
+console.log(doesThisWordWork("knife", gameBoard[10]));

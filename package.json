@@ -1,0 +1,19 @@
+{
+  "name": "word-hunter-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "SolvingFunctions.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zach-The-Gecko/word-hunter-APP.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zach-The-Gecko/word-hunter-APP/issues"
+  },
+  "homepage": "https://github.com/Zach-The-Gecko/word-hunter-APP#readme"
+}
