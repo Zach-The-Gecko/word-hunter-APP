@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "SolvingFunctions.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Zach-The-Gecko/word-hunter-APP/issues"
   },
-  "homepage": "https://github.com/Zach-The-Gecko/word-hunter-APP#readme"
+  "homepage": "https://github.com/Zach-The-Gecko/word-hunter-APP#readme",
+  "devDependencies": {
+    "nodemon": "^1.3.3"
+  }
 }
