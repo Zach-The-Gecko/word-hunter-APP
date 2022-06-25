@@ -1,10 +1,12 @@
+const display = document.querySelector("#display");
+
 const inputData = [
   "a",
   "b",
-  "k",
-  "p",
-  "b",
-  "b",
+  "c",
+  "d",
+  "e",
+  "f",
   "g",
   "h",
   "i",
@@ -17,11 +19,13 @@ const inputData = [
   "p",
 ];
 
+const directions = ["↖️", "⬆️", "↗️", "⬅️", "➡️", "↙️", "⬇️", "↘️"];
+
 const unfinishedGameBoard = inputData.map((letter, position) => {
   return {
     letter,
-    interactable: true,
-    previousTile: null,
+    parents: [],
+    direction: "",
     position,
   };
 });
@@ -46,20 +50,14 @@ const gameBoard = unfinishedGameBoard.map((tile) => {
 
   return {
     ...tile,
-    nearbyLettersIndex: nearbyLettersIndex.filter((letter) => {
-      return !isNaN(letter);
-    }),
+    nearbyLettersIndex,
   };
 });
 
 const getNearbyTiles = (tile) => {
-  return tile.nearbyLettersIndex
-    .map((index) => {
-      return gameBoard[index];
-    })
-    .filter((tile) => {
-      return tile;
-    });
+  return tile.nearbyLettersIndex.map((index) => {
+    return gameBoard[index];
+  });
 };
 
 const doesThisWordWork = (word, startingTile) => {
@@ -71,9 +69,20 @@ const doesThisWordWork = (word, startingTile) => {
         acc[index].map((parentTile) => {
           acc[index + 1] = getNearbyTiles(parentTile).reduce(
             (validNearbyTiles, tile, direction) => {
-              if (tile.letter === word[index + 1] && tile.interactable) {
-                validNearbyTiles.push(tile);
-                tile.interactable = false;
+              if (tile) {
+                const parentTilePositions = tile.parents.map(
+                  (oneOfTheParents) => {
+                    return oneOfTheParents.position;
+                  }
+                );
+                if (
+                  tile.letter === word[index + 1] &&
+                  !parentTilePositions.includes(tile.position)
+                ) {
+                  parentTile.direction = directions[direction];
+                  tile.parents = [...parentTile.parents, parentTile];
+                  validNearbyTiles.push(tile);
+                }
               }
               return validNearbyTiles;
             },
@@ -88,9 +97,44 @@ const doesThisWordWork = (word, startingTile) => {
   );
   letterTree.pop();
   if (letterTree.length === word.length) {
-    console.log("worked");
-    console.log(letterTree[word.length - 1][0]);
+    const finalTile = letterTree[word.length - 1][0];
+    finalTile.direction = "🛑";
+
+    const answer = [
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+      "⬛",
+    ];
+
+    [...finalTile.parents, finalTile].map((tile) => {
+      answer[tile.position] = tile.direction;
+    });
+
+    const finalAnswer = answer.reduce((finalDisplay, displayLetter, index) => {
+      finalDisplay = finalDisplay + displayLetter;
+      if (index % 4 == 3) {
+        finalDisplay = finalDisplay + "<br>";
+      }
+      return finalDisplay;
+    }, "");
+
+    return finalAnswer;
+  } else {
+    return false;
   }
 };
-
-doesThisWordWork("abkp", gameBoard[0]);
+display.innerHTML = doesThisWordWork("knife", gameBoard[10]);
+console.log(gameBoard);
