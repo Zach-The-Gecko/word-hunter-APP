@@ -1,6 +1,23 @@
 import { readFileSync } from "fs";
 
-const directions = ["↖️", "⬆️", "↗️", "⬅️", "➡️", "↙️", "⬇️", "↘️"];
+const directions = [
+  "↖️",
+  "⬆️",
+  "↗️",
+  "⬅️",
+  "➡️",
+  "↙️",
+  "⬇️",
+  "↘️",
+  "👋",
+  "👆",
+  "🫰",
+  "👈",
+  "👉",
+  "🖋️",
+  "👇",
+  "✏️",
+];
 
 const doesThisWordWork = (word, startingTile, gameBoardd) => {
   const startingAcc = startingTile.letter === word[0] ? [startingTile] : [];
@@ -15,21 +32,21 @@ const doesThisWordWork = (word, startingTile, gameBoardd) => {
             })
             .reduce((validNearbyTiles, tile, direction) => {
               if (tile) {
-                tile.parents = [...parentTile.parents, parentTile];
-                const parentTilePositions = tile.parents.map(
-                  (oneOfTheParents) => {
-                    return oneOfTheParents.position;
+                if (tile.letter === word[index + 1]) {
+                  tile.parents = [...parentTile.parents, parentTile];
+                  const parentTilePositions = tile.parents.map(
+                    (oneOfTheParents) => {
+                      return oneOfTheParents.position;
+                    }
+                  );
+                  if (!parentTilePositions.includes(tile.position)) {
+                    tile.parents[tile.parents.length - 1].direction =
+                      directions[direction];
+                    validNearbyTiles.push(tile);
                   }
-                );
-                if (
-                  tile.letter === word[index + 1] &&
-                  !parentTilePositions.includes(tile.position)
-                ) {
-                  tile.parents[tile.parents.length - 1].direction =
-                    directions[direction];
-                  validNearbyTiles.push(tile);
                 }
               }
+
               return validNearbyTiles;
             }, []);
         });
@@ -39,10 +56,13 @@ const doesThisWordWork = (word, startingTile, gameBoardd) => {
     },
     [startingAcc]
   );
-  letterTree.pop();
-  if (letterTree.length === word.length) {
+
+  if (letterTree.length - 1 === word.length) {
     const finalTile = letterTree[word.length - 1][0];
+    const startingTile = letterTree[0][0];
     finalTile.direction = "⭐";
+    startingTile.direction =
+      directions[directions.indexOf(startingTile.direction) + 8];
 
     const emptyAnswer = [
       "⬛",
@@ -66,7 +86,6 @@ const doesThisWordWork = (word, startingTile, gameBoardd) => {
     [...finalTile.parents, finalTile].map((tile) => {
       emptyAnswer[tile.position] = tile.direction;
     });
-
     const finalAnswer = emptyAnswer.reduce(
       (stringAnswer, displayLetter, index) => {
         stringAnswer = stringAnswer + displayLetter;
@@ -122,8 +141,7 @@ export default (minAnswers, input) => {
     "utf8"
   ).split("\n");
 
-  const answers = [];
-  words.map((word) => {
+  const answers = words.reduce((acc, word) => {
     gameBoard.map((tile) => {
       const answer = doesThisWordWork(word.toLowerCase(), tile, gameBoard);
 
@@ -131,22 +149,10 @@ export default (minAnswers, input) => {
         (tile.parents = []), (tile.direction = "");
       });
       if (answer) {
-        answers.push([word, answer]);
+        acc.push([word, answer]);
       }
     });
-  });
-  const finalAnswers = [];
-
-  answers.map((answer) => {
-    if (finalAnswers[answer[0].length]) {
-      finalAnswers[answer[0].length].push(answer);
-    } else {
-      finalAnswers[answer[0].length] = [answer];
-    }
-  });
-  return finalAnswers
-    .filter((answerList) => {
-      return answerList;
-    })
-    .reverse();
+    return acc;
+  }, []);
+  return answers.sort((a, b) => b[0].length - a[0].length);
 };
